@@ -1,15 +1,14 @@
-# 🍔 Carvalhos Burguer
-
+# Carvalhos Burguer
 Aplicativo desenvolvido para gerenciamento de pedidos de uma hamburgueria.
 
-## 📱 Funcionalidades
+# Funcionalidades
 - Listagem de produtos
 - Interface moderna
 - Sistema de pedidos
 
-## 🛠️ Tecnologias
+# Tecnologias
 - Java/Kotlin
 - Android Studio
 
-## 👩‍💻 Desenvolvido por
+# Desenvolvido por
 Caroline Dias
