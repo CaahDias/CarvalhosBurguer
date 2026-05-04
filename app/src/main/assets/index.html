@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Carvalho's Burger</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@400;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #0A0A0A; --gold: #FFD700; --gold-light: #FFED4A; --gold-dark: #B8860B; --bg: #0A0A0A; --card: #141414; --text: #FFFFFF; --text-light: #A0A0A0; --success: #28a745; --info: #17a2b8; --warning: #ffc107; --danger: #dc3545; }
+
+        body { font-family: 'Oswald', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+        .splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0A0A0A; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease; }
+        .splash.hidden { opacity: 0; pointer-events: none; }
+        .brand-name-large { font-family: 'Playfair Display', serif; font-size: 52px; font-style: italic; color: var(--gold); text-align: center; }
+
+        .header { background: #141414; padding: 15px 20px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,215,0,0.2); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: var(--gold); font-size: 22px; font-family: 'Playfair Display', serif; line-height: 1.2; }
+        .header-subtitle { color: var(--text-light); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-top: 2px; }
+
+        .container { padding: 20px; padding-bottom: 120px; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .welcome-card { background: linear-gradient(135deg, #1A1A1A, #0A0A0A); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,215,0,0.2); margin-bottom: 25px; }
+        .card { background: var(--card); padding: 15px; border-radius: 16px; margin-bottom: 15px; border-left: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
+
+        .order-info { margin-right: 110px; }
+        .order-id-client { color: var(--gold); font-weight: bold; font-size: 15px; display: block; margin-bottom: 2px; }
+        .order-time { font-size: 10px; color: #666; display: block; margin-bottom: 8px; }
+        .order-items { font-size: 13px; color: #ccc; margin-bottom: 8px; line-height: 1.4; }
+        .order-value { font-weight: bold; color: white; font-size: 16px; }
+
+        .status-badge { font-size: 9px; padding: 3px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; display: inline-block; }
+        .status-anotado { background: #555; color: white; }
+        .status-preparando { background: var(--warning); color: black; }
+        .status-pronto { background: var(--success); color: white; }
+        .status-saindo { background: var(--info); color: white; }
+        .status-entregue { background: #222; color: #28a745; border: 1px solid #28a745; }
+
+        .status-controls { position: absolute; right: 15px; top: 15px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; width: 100px; }
+        .btn-status { font-size: 10px; padding: 8px 5px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3); background: #222; color: var(--gold); cursor: pointer; font-weight: bold; text-transform: uppercase; width: 100%; text-align: center; }
+        .btn-delete { color: var(--danger); border-color: #500; font-size: 10px; padding: 6px; margin-top: 10px; width: 100%; background: rgba(220, 53, 69, 0.1); border-radius: 6px; border: 1px solid #dc3545; cursor: pointer; text-align: center; font-weight: bold; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,215,0,0.1); }
+        .stat-value { font-size: 18px; color: var(--gold); font-weight: bold; }
+        .stat-label { font-size: 10px; color: var(--text-light); text-transform: uppercase; margin-top: 5px; }
+
+        .report-card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid rgba(255,215,0,0.1); }
+        .report-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #222; }
+        .report-label { font-size: 14px; color: var(--text-light); }
+        .report-value { font-size: 18px; color: var(--gold); font-weight: bold; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: flex-end; }
+        .modal.active { display: flex; }
+        .modal-content { background: #141414; width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 20px; border: 1px solid var(--gold); border-bottom: none; max-height: 90vh; overflow-y: auto; }
+        .form-input { width: 100%; padding: 10px; background: #0A0A0A; border: 1px solid #333; color: white; border-radius: 8px; margin-top: 5px; margin-bottom: 12px; font-family: inherit; }
+        .btn-full { width: 100%; padding: 12px; background: var(--gold); color: black; border: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; margin-top: 8px; cursor: pointer; }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; padding: 5px; background: #0A0A0A; border-radius: 8px; border: 1px solid #333; }
+        .menu-item { background: #1A1A1A; border: 1px solid #333; border-radius: 8px; padding: 8px; font-size: 11px; cursor: pointer; color: white; text-align: center; }
+        .menu-item:active { background: var(--gold); color: black; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #0A0A0A; display: flex; justify-content: space-around; padding: 10px; border-top: 1px solid rgba(255,215,0,0.3); z-index: 100; }
+        .nav-item { color: var(--text-light); border: none; background: none; font-size: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .nav-item span:first-child { font-size: 20px; margin-bottom: 4px; }
+        .nav-item.active { color: var(--gold); }
+
+        .client-item { padding: 12px 0; border-bottom: 1px solid #222; }
+        .client-header { display: flex; align-items: center; gap: 12px; margin-bottom: 5px; }
+        .client-avatar { width: 35px; height: 35px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; font-size: 14px; }
+        .client-address { font-size: 11px; color: var(--text-light); margin-left: 47px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="splash" id="splash">
+        <div class="brand-name-large">Carvalho's</div>
+        <div style="color: var(--gold); letter-spacing: 10px; font-size: 20px; margin-bottom: 15px;">BURGER</div>
+        <div style="color: white; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; text-align: center; width: 80%;">Qualidade é nossa prioridade, excelência é nosso dever</div>
+    </div>
+
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <h1>Carvalho's Burger</h1>
+                <span class="header-subtitle">Qualidade é nossa prioridade, excelência é nosso dever</span>
+            </div>
+            <div onclick="openModal('modal-order')" style="cursor: pointer; font-size: 24px;">➕</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="dashboard" class="section active">
+            <div class="stats-grid">
+                <div class="stat-box"><div id="stat-revenue" class="stat-value">R$ 0,00</div><div class="stat-label">Vendas Hoje</div></div>
+                <div class="stat-box"><div id="stat-count" class="stat-value">0</div><div class="stat-label">Pedidos Hoje</div></div>
+            </div>
+            <h3 style="margin-bottom: 15px; color: var(--gold); font-size: 16px;">Pedidos Ativos</h3>
+            <div id="orders-list"></div>
+        </section>
+
+        <section id="clients" class="section">
+            <h2 style="color: var(--gold); margin-bottom: 20px;">Meus Clientes</h2>
+            <div id="clients-list"></div>
+            <button class="btn-full" onclick="openModal('modal-client')">Novo Cliente</button>
+        </section>
+
+        <section id="reports" class="section">
+            <h2 style="color: var(--gold); margin-bottom: 20px;">Relatórios Financeiros</h2>
+            <div class="report-card">
+                <div class="report-item"><span class="report-label">Faturamento Hoje</span><span id="report-daily" class="report-value">R$ 0,00</span></div>
+                <div class="report-item"><span class="report-label">Faturamento Semanal</span><span id="report-weekly" class="report-value">R$ 0,00</span></div>
+                <div class="report-item"><span class="report-label">Faturamento Mensal</span><span id="report-monthly" class="report-value">R$ 0,00</span></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal" id="modal-order">
+        <div class="modal-content">
+            <h2 style="color: var(--gold); margin-bottom: 15px;">Novo Pedido</h2>
+            <input type="text" id="order-client" class="form-input" placeholder="Nome do Cliente">
+            <label style="color:var(--gold); font-size:10px; text-transform:uppercase;">Selecione os Pastéis (R$ 9,99 cada)</label>
+            <div class="menu-grid" id="menu-items"></div>
+            <textarea id="order-items" class="form-input" style="height: 60px;" placeholder="Itens selecionados..."></textarea>
+            <input type="number" id="order-value" class="form-input" placeholder="Valor R$" step="0.01">
+            <button class="btn-full" onclick="saveOrder()">Lançar Pedido</button>
+            <button class="btn-full" style="background: #333; color: white;" onclick="closeModal('modal-order')">Voltar</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-client">
+        <div class="modal-content">
+            <h2 style="color: var(--gold); margin-bottom: 15px;">Novo Cliente</h2>
+            <input type="text" id="client-name" class="form-input" placeholder="Nome">
+            <input type="text" id="client-phone" class="form-input" placeholder="Telefone">
+            <textarea id="client-address" class="form-input" style="height: 60px;" placeholder="Endereço"></textarea>
+            <button class="btn-full" onclick="saveClient()">Salvar Cliente</button>
+            <button class="btn-full" style="background: #333; color: white;" onclick="closeModal('modal-client')">Cancelar</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="showSection('dashboard', this)"><span>🏠</span><span>Início</span></button>
+        <button class="nav-item" onclick="showSection('clients', this)"><span>👥</span><span>Clientes</span></button>
+        <button class="nav-item" onclick="showSection('reports', this)"><span>📊</span><span>Relatórios</span></button>
+    </nav>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let clients = JSON.parse(localStorage.getItem('clients')) || [];
+        let currentOrderTotal = 0;
+
+        const menu = [
+            "Pastel de Carne", "Pastel de Carne com Ovo", "Pastel de Carne com cheddar", "Pastel de carne com queijo",
+            "Pastel de Frango", "Pastel de Frango com cheddar", "Pastel de Frango com milho",
+            "Pastel de Calabresa", "Pastel de Calabresa com cheddar", "Pastel de Calabresa com cebola",
+            "Pastel de Presunto e Queijo", "Pastel de Queijo Com Milho", "Pastel de Queijo", "Pastel de Portuguesa"
+        ];
+
+        function getNow() {
+            const n = new Date();
+            return n.getDate().toString().padStart(2,'0') + '/' + (n.getMonth()+1).toString().padStart(2,'0') + ' às ' + n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+        }
+
+        window.onload = () => {
+            setTimeout(() => document.getElementById('splash').classList.add('hidden'), 2000);
+            renderMenu(); renderAll();
+        };
+
+        function renderMenu() {
+            const grid = document.getElementById('menu-items');
+            grid.innerHTML = menu.map(item => `<div class="menu-item" onclick="addItemToOrder('${item}')">${item}</div>`).join('');
+        }
+
+        function addItemToOrder(item) {
+            const textarea = document.getElementById('order-items');
+            const valInput = document.getElementById('order-value');
+            if (textarea.value.length > 0) textarea.value += ", ";
+            textarea.value += item;
+            currentOrderTotal += 9.99;
+            valInput.value = currentOrderTotal.toFixed(2);
+        }
+
+        function renderAll() { renderOrders(); renderClients(); updateStats(); renderFinancials(); }
+
+        function showSection(id, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function saveOrder() {
+            const c = document.getElementById('order-client').value;
+            const i = document.getElementById('order-items').value;
+            const v = parseFloat(document.getElementById('order-value').value);
+            if (!c || !i || isNaN(v)) return alert('Preencha tudo!');
+
+            orders.unshift({ id: 'id' + Date.now(), client: c, items: i, value: v, status: 'ANOTADO', time: getNow(), timestamp: Date.now() });
+            localStorage.setItem('orders', JSON.stringify(orders));
+            closeModal('modal-order');
+            document.getElementById('order-client').value = '';
+            document.getElementById('order-items').value = '';
+            document.getElementById('order-value').value = '';
+            currentOrderTotal = 0; renderAll();
+        }
+
+        function changeStatus(id, newStatus) {
+            const idx = orders.findIndex(o => o.id === id);
+            if(idx !== -1) {
+                orders[idx].status = newStatus;
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderAll();
+            }
+        }
+
+        function deleteOrder(id) {
+            if(confirm('Excluir este pedido?')) {
+                orders = orders.filter(o => o.id !== id);
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderAll();
+            }
+        }
+
+        function renderOrders() {
+            const list = document.getElementById('orders-list');
+            if (orders.length === 0) { list.innerHTML = '<p style="text-align:center; color:#555; margin-top:20px;">Nenhum pedido ativo.</p>'; return; }
+            list.innerHTML = orders.map((o) => {
+                const s = o.status;
+                return `
+                <div class="card">
+                    <div class="order-info">
+                        <span class="status-badge status-${s.toLowerCase().replace(' p/entrega', '').replace(' ', '')}">${s}</span>
+                        <span class="order-id-client">${o.client}</span>
+                        <span class="order-time">📅 ${o.time || 'Agora'}</span>
+                        <p class="order-items">${o.items}</p>
+                        <div class="order-value">R$ ${o.value.toFixed(2)}</div>
+                    </div>
+                    <div class="status-controls">
+                        ${s === 'ANOTADO' ? `<button class="btn-status" onclick="changeStatus('${o.id}', 'PREPARANDO')">PREPARAR</button>` : ''}
+                        ${s === 'PREPARANDO' ? `<button class="btn-status" onclick="changeStatus('${o.id}', 'PRONTO')">PRONTO</button>` : ''}
+                        ${s === 'PRONTO' ? `<button class="btn-status" onclick="changeStatus('${o.id}', 'SAINDO')">SAIR P/ ENTREGA</button>` : ''}
+                        ${s === 'SAINDO' ? `<button class="btn-status" onclick="changeStatus('${o.id}', 'ENTREGUE')">ENTREGUE</button>` : ''}
+                        ${s === 'ENTREGUE' ? `<span style="color:#28a745; font-size:10px; font-weight:bold;">✓ ENTREGUE</span>` : ''}
+                        <button class="btn-delete" onclick="deleteOrder('${o.id}')">EXCLUIR</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderFinancials() {
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const startOfWeek = startOfDay - (7 * 24 * 60 * 60 * 1000);
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            const daily = orders.filter(o => o.timestamp >= startOfDay).reduce((a, b) => a + b.value, 0);
+            const weekly = orders.filter(o => o.timestamp >= startOfWeek).reduce((a, b) => a + b.value, 0);
+            const monthly = orders.filter(o => o.timestamp >= startOfMonth).reduce((a, b) => a + b.value, 0);
+            document.getElementById('report-daily').innerText = `R$ ${daily.toFixed(2)}`;
+            document.getElementById('report-weekly').innerText = `R$ ${weekly.toFixed(2)}`;
+            document.getElementById('report-monthly').innerText = `R$ ${monthly.toFixed(2)}`;
+        }
+
+        function updateStats() {
+            const startOfDay = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime();
+            const today = orders.filter(o => o.timestamp >= startOfDay);
+            document.getElementById('stat-revenue').innerText = `R$ ${today.reduce((a,b)=>a+b.value, 0).toFixed(2)}`;
+            document.getElementById('stat-count').innerText = today.length;
+        }
+
+        function saveClient() {
+            const n = document.getElementById('client-name').value;
+            const p = document.getElementById('client-phone').value;
+            const a = document.getElementById('client-address').value;
+            if(!n || !a) return alert('Nome e Endereço obrigatórios!');
+            clients.unshift({ name: n, phone: p, address: a });
+            localStorage.setItem('clients', JSON.stringify(clients));
+            closeModal('modal-client'); renderAll();
+        }
+
+        function renderClients() {
+            document.getElementById('clients-list').innerHTML = clients.map(c => `
+                <div class="card" style="border-left:4px solid var(--gold)">
+                    <div style="font-weight:bold; color:var(--gold);">${c.name}</div>
+                    <div style="font-size:12px; color:#888;">${c.phone}</div>
+                    <div style="font-size:11px; margin-top:5px;">📍 ${c.address}</div>
+                </div>`).join('');
+        }
+
+        function openModal(id) {
+            if(id === 'modal-order') { document.getElementById('order-value').value = ""; currentOrderTotal = 0; }
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    </script>
+</body>
+</html>
